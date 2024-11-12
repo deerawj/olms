@@ -13,15 +13,20 @@ def test_logn():
     s = Session()
     data = {"username": "username", "password": "password"}
     resp = s.post(f"{host}signin", json=data)
+    
+    assert resp.status_code == 200
+    access_token = resp.json()["access_token"]
+    assert access_token
+
+    auth = {"Authorization": f"Bearer {access_token}"}
+    resp = s.get(f"{host}secret", headers=auth)
     assert resp.status_code == 200
 
-    resp = s.get(f"{host}secret")
+    resp = s.post(f"{host}signout", headers=auth)
+    print(resp)
     assert resp.status_code == 200
 
-    resp = s.post(f"{host}logout")
-    assert resp.status_code == 200
-
-    resp = s.get(f"{host}secret")
+    resp = s.get(f"{host}secret", headers=auth)
     assert resp.status_code == 401
 
 
